@@ -440,8 +440,8 @@ Evaluated across 8 distinct samples for each of the 5 operational categories:
 
 ### 1. Clone Repository & Setup Virtual Environment
 ```bash
-git clone https://github.com/Hetgandhi25/radiant-planck.git
-cd radiant-planck
+git clone https://github.com/Hetgandhi25/jev-decision-studio.git
+cd jev-decision-studio
 
 python3 -m venv venv
 source venv/bin/activate
