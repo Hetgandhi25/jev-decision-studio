@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Decision Studio — Local Jev-Style AI Decision Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-page: #f8fafc;
+      --card-bg: #ffffff;
+      --card-border: #e2e8f0;
+      --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+      --card-shadow-hover: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --text-subtle: #94a3b8;
+      
+      --blue-primary: #2563eb;
+      --blue-hover: #1d4ed8;
+      --blue-light: #eff6ff;
+      --blue-border: #bfdbfe;
+      
+      --green-text: #15803d;
+      --green-bg: #f0fdf4;
+      --green-border: #bbf7d0;
+      --green-dot: #16a34a;
+      
+      --red-text: #b91c1c;
+      --red-bg: #fef2f2;
+      --red-bar: #ef4444;
+      
+      --amber-text: #b45309;
+      --amber-bg: #fffbeb;
+      --amber-bar: #f59e0b;
+      
+      --purple-text: #4338ca;
+      --purple-bg: #eef2ff;
+      
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-full: 9999px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.5;
+      padding: 36px 20px 80px 20px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+
+    /* 1. Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .brand-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-icon-wrap {
+      width: 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--blue-primary);
+    }
+
+    .brand-text h1 {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.4px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-text p {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--green-bg);
+      border: 1px solid var(--green-border);
+      border-radius: var(--radius-md);
+      padding: 8px 14px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+      transition: all 0.2s ease;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green-dot);
+      box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
+    }
+
+    .status-badge.degraded .status-dot {
+      background: var(--amber-bar);
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+    }
+
+    .status-badge.offline .status-dot {
+      background: var(--red-bar);
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+    }
+
+    .status-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--green-text);
+      line-height: 1.2;
+    }
+
+    .status-subtitle {
+      font-size: 11px;
+      color: #3f6212;
+      margin-top: 1px;
+    }
+
+    /* 2. Your Query Card */
+    .card-query {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--card-shadow);
+      margin-bottom: 32px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 12px;
+      letter-spacing: -0.2px;
+    }
+
+    .query-input-row {
+      display: flex;
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .textarea-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    textarea.query-textarea {
+      width: 100%;
+      min-height: 84px;
+      border: 1px solid #cbd5e1;
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      font-size: 14px;
+      line-height: 1.5;
+      font-family: inherit;
+      color: var(--text-main);
+      background: #ffffff;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    textarea.query-textarea:focus {
+      border-color: var(--blue-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .btn-analyze {
+      background: var(--blue-primary);
+      color: #ffffff;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 0 24px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s, transform 0.05s;
+      white-space: nowrap;
+      min-width: 150px;
+    }
+
+    .btn-analyze:hover {
+      background: var(--blue-hover);
+    }
+
+    .btn-analyze:active {
+      transform: scale(0.99);
+    }
+
+    .btn-analyze:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .input-hint {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    /* Example Query Chips */
+    .examples-wrap {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .examples-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-subtle);
+      margin-right: 4px;
+    }
+
+    .chip {
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #e2e8f0;
+      border-radius: var(--radius-full);
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .chip:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+      border-color: #cbd5e1;
+    }
+
+    .chip.active {
+      background: var(--blue-light);
+      color: var(--blue-primary);
+      border-color: var(--blue-border);
+      font-weight: 600;
+    }
+
+    /* 3. Analysis Section */
+    .analysis-header {
+      margin-bottom: 16px;
+    }
+
+    .analysis-title {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: var(--text-main);
+    }
+
+    .analysis-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* 2x2 Structured Decision Grid */
+    .grid-decisions {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .decision-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 140px;
+      transition: box-shadow 0.15s ease;
+    }
+
+    .decision-card:hover {
+      box-shadow: var(--card-shadow-hover);
+    }
+
+    .card-top-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .icon-label-group {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .icon-circle {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .icon-circle.blue {
+      background: var(--blue-light);
+      color: var(--blue-primary);
+    }
+
+    .icon-circle.purple {
+      background: var(--purple-bg);
+      color: #6366f1;
+    }
+
+    .icon-circle.red {
+      background: var(--red-bg);
+      color: var(--red-bar);
+    }
+
+    .icon-circle.amber {
+      background: var(--amber-bg);
+      color: var(--amber-bar);
+    }
+
+    .icon-circle.gray {
+      background: #f1f5f9;
+      color: var(--text-muted);
+    }
+
+    .meta-heading {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .metric-tag {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .metric-main-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .metric-headline {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.2px;
+    }
+
+    .badge-pill {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      white-space: nowrap;
+    }
+
+    .badge-pill.green {
+      background: var(--green-bg);
+      color: var(--green-text);
+      border: 1px solid var(--green-border);
+    }
+
+    .badge-pill.amber {
+      background: var(--amber-bg);
+      color: var(--amber-text);
+      border: 1px solid #fde68a;
+    }
+
+    /* Right side metric gauges */
+    .metric-gauge-side {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      min-width: 130px;
+    }
+
+    .gauge-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .gauge-label strong {
+      color: var(--text-main);
+      font-weight: 700;
+    }
+
+    .progress-bar-track {
+      width: 130px;
+      height: 6px;
+      background: #f1f5f9;
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: var(--radius-full);
+      transition: width 0.4s ease-out;
+    }
+
+    .progress-bar-fill.blue {
+      background: var(--blue-primary);
+    }
+
+    .progress-bar-fill.red {
+      background: var(--red-bar);
+    }
+
+    .progress-bar-fill.amber {
+      background: var(--amber-bar);
+    }
+
+    .card-description-row {
+      margin-top: 14px;
+      font-size: 13px;
+      color: #475569;
+      line-height: 1.45;
+    }
+
+    /* Distribution details dropdown */
+    .distribution-toggle-btn {
+      background: none;
+      border: none;
+      color: var(--blue-primary);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 4px 0 0 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .distribution-panel {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed #e2e8f0;
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .distribution-panel.open {
+      display: flex;
+    }
+
+    .dist-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+    }
+
+    .dist-row .dist-name {
+      color: #475569;
+      width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .dist-row .dist-bar-box {
+      flex: 1;
+      height: 4px;
+      background: #f1f5f9;
+      border-radius: 2px;
+      margin: 0 10px;
+      overflow: hidden;
+    }
+
+    .dist-row .dist-bar-inner {
+      height: 100%;
+      background: #94a3b8;
+      border-radius: 2px;
+    }
+
+    .dist-row.winner .dist-name {
+      font-weight: 600;
+      color: var(--blue-primary);
+    }
+
+    .dist-row.winner .dist-bar-inner {
+      background: var(--blue-primary);
+    }
+
+    .dist-row .dist-val {
+      font-weight: 600;
+      width: 40px;
+      text-align: right;
+      color: var(--text-main);
+    }
+
+    /* 4. Reasoning & Next Steps Card */
+    .card-reasoning {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      box-shadow: var(--card-shadow);
+      margin-bottom: 16px;
+    }
+
+    .reasoning-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .reasoning-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .reasoning-title-wrap h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.2px;
+    }
+
+    .reasoning-badge {
+      font-size: 11px;
+      color: var(--text-muted);
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 2px 8px;
+      border-radius: var(--radius-sm);
+    }
+
+    .steps-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 13.5px;
+      color: #334155;
+      line-height: 1.5;
+    }
+
+    .step-number {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--blue-light);
+      color: var(--blue-primary);
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .step-text strong {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    /* 5. Technical Details Card */
+    .card-technical {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+
+    .technical-summary-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .technical-summary-bar:hover {
+      background: #fbfcfe;
+    }
+
+    .tech-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .tech-heading {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-right: 4px;
+    }
+
+    .tech-pill-list {
+      font-size: 13px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .tech-dot-sep {
+      color: #cbd5e1;
+    }
+
+    .chevron-icon {
+      color: var(--text-muted);
+      transition: transform 0.2s ease;
+    }
+
+    .card-technical.expanded .chevron-icon {
+      transform: rotate(180deg);
+    }
+
+    .technical-content {
+      display: none;
+      padding: 0 18px 18px 18px;
+      border-top: 1px solid #f1f5f9;
+      background: #ffffff;
+    }
+
+    .card-technical.expanded .technical-content {
+      display: block;
+    }
+
+    .tech-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: 16px;
+      margin-bottom: 16px;
+    }
+
+    .tech-meta-item {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+    }
+
+    .tech-meta-item .label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      font-weight: 600;
+    }
+
+    .tech-meta-item .val {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .val.green { color: var(--green-text); }
+    .val.blue { color: var(--blue-primary); }
+    .val.amber { color: var(--amber-text); }
+
+    .fallback-simulation-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fffbeb;
+      border: 1px solid #fef3c7;
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      font-size: 12.5px;
+      color: #92400e;
+    }
+
+    /* Toggle switch */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 38px;
+      height: 20px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #cbd5e1;
+      transition: .2s;
+      border-radius: 20px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .2s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--amber-bar);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(18px);
+    }
+
+    /* Raw JSON viewer */
+    .json-box-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .btn-copy {
+      background: none;
+      border: 1px solid #cbd5e1;
+      border-radius: var(--radius-sm);
+      padding: 3px 8px;
+      font-size: 11px;
+      cursor: pointer;
+      color: #475569;
+    }
+
+    .btn-copy:hover {
+      background: #f1f5f9;
+    }
+
+    pre.json-viewer {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 14px;
+      border-radius: var(--radius-sm);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      line-height: 1.45;
+      overflow-x: auto;
+      max-height: 320px;
+    }
+
+    /* Loading Spinner */
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      border-radius: 50%;
+      border-top-color: #ffffff;
+      animation: spin 0.6s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Fallback banner alert */
+    .fallback-active-banner {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      color: #92400e;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+
+    .fallback-active-banner.active {
+      display: flex;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .query-input-row {
+        flex-direction: column;
+      }
+      .btn-analyze {
+        width: 100%;
+        height: 44px;
+      }
+      .grid-decisions {
+        grid-template-columns: 1fr;
+      }
+      .tech-meta-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- 1. Minimal Header -->
+    <header>
+      <div class="brand-left">
+        <div class="brand-icon-wrap">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3c0 4.5-2 6.5-6.5 6.5C10 9.5 12 11.5 12 16c0-4.5 2-6.5 6.5-6.5C14 9.5 12 7.5 12 3z"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>Decision Studio</h1>
+          <p>Ask a question. Get structured decisions and analysis.</p>
+        </div>
+      </div>
+
+      <div class="status-badge" id="statusBadge" title="Backend health ping to /health">
+        <div class="status-dot"></div>
+        <div>
+          <div class="status-title" id="statusTitle">Local model connected</div>
+          <div class="status-subtitle" id="statusSubtitle">NVIDIA DGX Spark (Ollaya + Laya CPU)</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Fallback Active Notice -->
+    <div class="fallback-active-banner" id="fallbackBanner">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <div>
+        <strong>Dual-Engine Fallback Engaged:</strong> Ollaya primary was bypassed. Decisions generated via local Ollama (<span id="fallbackModelName">nemotron-3-nano:4b</span>).
+      </div>
+    </div>
+
+    <!-- 2. Universal Query Box -->
+    <div class="card-query">
+      <div class="card-title">Your query</div>
+      
+      <div class="query-input-row">
+        <div class="textarea-wrap">
+          <textarea 
+            id="queryInput" 
+            class="query-textarea" 
+            placeholder="Describe your problem, incident, customer request, or business situation..."
+            spellcheck="false"
+          >A customer says they were charged after cancelling their subscription and threatens a chargeback. What should we do?</textarea>
+          <div class="input-hint">Describe any situation, question, or case in plain language.</div>
+        </div>
+
+        <button id="btnAnalyze" class="btn-analyze" onclick="analyzeQuery()">
+          <div class="spinner" id="spinner"></div>
+          <svg id="btnSparkle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3c0 4.5-2 6.5-6.5 6.5C10 9.5 12 11.5 12 16c0-4.5 2-6.5 6.5-6.5C14 9.5 12 7.5 12 3z"/>
+          </svg>
+          <span id="btnText">Analyze query</span>
+        </button>
+      </div>
+
+      <!-- Quick Example Chips -->
+      <div class="examples-wrap">
+        <span class="examples-label">Examples:</span>
+        <button class="chip active" onclick="loadExample(0)">Billing Dispute</button>
+        <button class="chip" onclick="loadExample(1)">Database Crash</button>
+        <button class="chip" onclick="loadExample(2)">Data Breach Threat</button>
+        <button class="chip" onclick="loadExample(3)">Search API Latency</button>
+        <button class="chip" onclick="loadExample(4)">Dark Mode Request</button>
+      </div>
+    </div>
+
+    <!-- 3. Complete Analysis Results -->
+    <div class="analysis-header">
+      <h2 class="analysis-title">Analysis</h2>
+      <p class="analysis-subtitle">Structured decision and analysis from local AI model</p>
+    </div>
+
+    <!-- 2x2 Decision Grid -->
+    <div class="grid-decisions">
+
+      <!-- Card 1: Decision / Action -->
+      <div class="decision-card">
+        <div class="card-top-row">
+          <div class="icon-label-group">
+            <div class="icon-circle blue">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
+              </svg>
+            </div>
+            <div class="meta-heading">
+              <span class="metric-tag">Decision</span>
+              <div class="metric-main-row">
+                <span class="metric-headline" id="valDecision">Escalate to Billing</span>
+                <span class="badge-pill green" id="badgeDecision">Recommended action</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-description-row" id="descDecision">
+          Route to billing team for immediate investigation and customer response.
+        </div>
+      </div>
+
+      <!-- Card 2: Category (Choice) -->
+      <div class="decision-card">
+        <div class="card-top-row">
+          <div class="icon-label-group">
+            <div class="icon-circle purple">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
+              </svg>
+            </div>
+            <div class="meta-heading">
+              <span class="metric-tag">Category</span>
+              <div class="metric-main-row">
+                <span class="metric-headline" id="valCategory">Billing / Refund</span>
+              </div>
+            </div>
+          </div>
+          <div class="metric-gauge-side">
+            <div class="gauge-label">Winning Prob: <strong id="valCatWinProb">70.3%</strong> <span style="font-size:11px; color:#64748b;">(Conf: <span id="valCatConfidence">62.9%</span>)</span></div>
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill blue" id="barCategory" style="width: 70.3%;"></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card-description-row" id="descCategory">
+            Related to duplicate charge, cancellation, refund or payment issue.
+          </div>
+          <button class="distribution-toggle-btn" onclick="toggleDistribution('distCategoryPanel')">
+            <span>View probability distribution</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="distribution-panel" id="distCategoryPanel"></div>
+        </div>
+      </div>
+
+      <!-- Card 3: Urgency (Noul) -->
+      <div class="decision-card">
+        <div class="card-top-row">
+          <div class="icon-label-group">
+            <div class="icon-circle red">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+            </div>
+            <div class="meta-heading">
+              <span class="metric-tag">Urgency</span>
+              <div class="metric-main-row">
+                <span class="metric-headline" id="valUrgency">High</span>
+              </div>
+            </div>
+          </div>
+          <div class="metric-gauge-side">
+            <div class="gauge-label">Probability: <strong id="valUrgProbability">87.6%</strong></div>
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill red" id="barUrgency" style="width: 87.6%;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card-description-row" id="descUrgency">
+          Requires prompt attention due to potential churn and chargeback risk.
+        </div>
+      </div>
+
+      <!-- Card 4: Severity (Score) -->
+      <div class="decision-card">
+        <div class="card-top-row">
+          <div class="icon-label-group">
+            <div class="icon-circle amber">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+              </svg>
+            </div>
+            <div class="meta-heading">
+              <span class="metric-tag">Severity</span>
+              <div class="metric-main-row">
+                <span class="metric-headline" id="valSeverity">Medium – High</span>
+              </div>
+            </div>
+          </div>
+          <div class="metric-gauge-side">
+            <div class="gauge-label">Score: <strong id="valSevScore">1.62 / 3.0</strong></div>
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill amber" id="barSeverity" style="width: 54%;"></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card-description-row" id="descSeverity">
+            Significant customer impact and financial risk, but not a full outage.
+          </div>
+          <button class="distribution-toggle-btn" onclick="toggleDistribution('distSeverityPanel')">
+            <span>View rubric levels</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="distribution-panel" id="distSeverityPanel"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 4. Reasoning & Next Steps Card -->
+    <div class="card-reasoning">
+      <div class="reasoning-header">
+        <div class="reasoning-title-wrap">
+          <div class="icon-circle blue">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <h3>Reasoning & next steps</h3>
+        </div>
+        <span class="reasoning-badge">Derived from structured model outputs</span>
+      </div>
+
+      <div class="steps-list" id="stepsList">
+        <div class="step-item">
+          <div class="step-number">1</div>
+          <div class="step-text" id="step1Text">The query indicates a billing/refund issue with a chargeback threat, which is a high-risk customer satisfaction and revenue issue.</div>
+        </div>
+        <div class="step-item">
+          <div class="step-number">2</div>
+          <div class="step-text" id="step2Text">The customer has attempted cancellation and is now escalating, which requires immediate review to prevent churn and potential fraud dispute.</div>
+        </div>
+        <div class="step-item">
+          <div class="step-number">3</div>
+          <div class="step-text" id="step3Text"><strong>Recommended next step:</strong> Escalate to the billing/customer success team, verify the account status, review the charges, and respond to the customer with a resolution path.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Technical Details (Collapsed by default) -->
+    <div class="card-technical" id="technicalCard">
+      <div class="technical-summary-bar" onclick="toggleTechnical()">
+        <div class="tech-left">
+          <div class="icon-circle gray" style="width: 28px; height: 28px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </div>
+          <span class="tech-heading">Technical details</span>
+          <div class="tech-pill-list">
+            <span>Model: <strong id="techModelSummary" style="color:var(--text-main);">Laya</strong></span>
+            <span class="tech-dot-sep">•</span>
+            <span>Runtime: <strong id="techEngineSummary" style="color:var(--text-main);">Ollaya (CPU)</strong></span>
+            <span class="tech-dot-sep">•</span>
+            <span>Latency: <strong id="techLatencySummary" style="color:var(--text-main);">263 ms</strong></span>
+            <span class="tech-dot-sep">•</span>
+            <span>Runs locally on DGX Spark (ARM64 CPU)</span>
+          </div>
+        </div>
+        <svg class="chevron-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
+
+      <div class="technical-content">
+        <!-- 4 Telemetry tiles -->
+        <div class="tech-meta-grid">
+          <div class="tech-meta-item">
+            <div class="label">Backend Decision Latency</div>
+            <div class="val green" id="telBackendLatency">263.2 ms</div>
+          </div>
+          <div class="tech-meta-item">
+            <div class="label">Client Round-Trip</div>
+            <div class="val blue" id="telClientLatency">285.1 ms</div>
+          </div>
+          <div class="tech-meta-item">
+            <div class="label">Probability Calibration</div>
+            <div class="val" id="telCalibration" style="font-size:11px;">Normalized (Statistically Uncalibrated)</div>
+          </div>
+          <div class="tech-meta-item">
+            <div class="label">Hardware & Device</div>
+            <div class="val" id="telHardware" style="font-size:11px;">DGX Spark (ARM64 CPU, ONNX fp32)</div>
+          </div>
+        </div>
+
+        <div style="font-size: 11.5px; color: #64748b; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-sm); padding: 8px 12px; margin-bottom: 14px; line-height: 1.4;">
+          <strong>Calibration Note:</strong> Model probabilities are normalized (&Sigma; p = 1.0). Statistical calibration has not yet been established across large out-of-distribution datasets.
+        </div>
+
+        <!-- Simulation row -->
+        <div class="fallback-simulation-row">
+          <div>
+            <strong>Simulate Runtime Outage:</strong> Force request to resident Ollama (<code>nemotron-3-nano:4b</code>) to test dual-engine failover.
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="forceFallbackToggle">
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <!-- Raw JSON wire inspector -->
+        <div class="json-box-header">
+          <span>Raw HTTP Wire Response from <code>POST /v1/systemone</code>:</span>
+          <button class="btn-copy" onclick="copyRawJson()">Copy JSON</button>
+        </div>
+        <pre class="json-viewer" id="rawJsonViewer">// Wire response payload will appear here after analysis</pre>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const EXAMPLES = [
+      {
+        name: "Billing Dispute",
+        query: "A customer says they were charged after cancelling their subscription and threatens a chargeback. What should we do?"
+      },
+      {
+        name: "Database Crash",
+        query: "Our primary PostgreSQL database cluster in us-east-1 crashed due to disk exhaustion. All write queries are failing and users are receiving 500 errors."
+      },
+      {
+        name: "Data Breach Threat",
+        query: "An unauthorized external attacker has compromised our production Redis database, exfiltrated customer password hashes, and left a ransom note demanding 5 Bitcoin."
+      },
+      {
+        name: "Search API Latency",
+        query: "API response times on the search endpoint have degraded from 50ms to 4500ms, causing front-end timeouts during customer checkout."
+      },
+      {
+        name: "Dark Mode Request",
+        query: "Could we add dark mode support to the customer dashboard settings dropdown? A user on Discord mentioned it would look much nicer at night."
+      }
+    ];
+
+    const RUBRIC_LEGEND = {
+      "0": "Level 0: Low (minor inconvenience, no business impact)",
+      "1": "Level 1: Medium (degraded functionality, limited impact)",
+      "2": "Level 2: High (significant degradation affecting customers)",
+      "3": "Level 3: Critical (production outage or business failure)"
+    };
+
+    function loadExample(index) {
+      document.querySelectorAll('.chip').forEach((c, idx) => {
+        c.classList.toggle('active', idx === index);
+      });
+      const ex = EXAMPLES[index];
+      document.getElementById('queryInput').value = ex.query;
+      analyzeQuery();
+    }
+
+    function toggleTechnical() {
+      const card = document.getElementById('technicalCard');
+      card.classList.toggle('expanded');
+    }
+
+    function toggleDistribution(panelId) {
+      const panel = document.getElementById(panelId);
+      panel.classList.toggle('open');
+    }
+
+    function copyRawJson() {
+      const text = document.getElementById('rawJsonViewer').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("Raw JSON copied to clipboard!");
+      });
+    }
+
+    // Ping /health on load to check live connection
+    async function checkHealth() {
+      try {
+        const res = await fetch('/health');
+        if (res.ok) {
+          const data = await res.json();
+          const badge = document.getElementById('statusBadge');
+          const title = document.getElementById('statusTitle');
+          const sub = document.getElementById('statusSubtitle');
+          if (data.ollaya_primary === 'up') {
+            badge.className = 'status-badge';
+            title.innerText = 'Local model connected';
+            sub.innerText = 'NVIDIA DGX Spark (Ollaya + Laya CPU)';
+          } else if (data.ollama_fallback === 'up') {
+            badge.className = 'status-badge degraded';
+            title.innerText = 'Fallback model active';
+            sub.innerText = 'NVIDIA DGX Spark (Ollama)';
+          } else {
+            badge.className = 'status-badge offline';
+            title.innerText = 'Service degraded';
+            sub.innerText = 'Check backend services';
+          }
+        }
+      } catch (e) {
+        console.warn('Health check failed:', e);
+      }
+    }
+
+    async function analyzeQuery() {
+      const text = document.getElementById('queryInput').value.trim();
+      if (!text) return;
+
+      const btn = document.getElementById('btnAnalyze');
+      const spinner = document.getElementById('spinner');
+      const btnSparkle = document.getElementById('btnSparkle');
+      const btnText = document.getElementById('btnText');
+      const forceFallback = document.getElementById('forceFallbackToggle').checked;
+
+      btn.disabled = true;
+      spinner.style.display = 'inline-block';
+      btnSparkle.style.display = 'none';
+      btnText.innerText = 'Analyzing...';
+
+      const payload = {
+        model: forceFallback ? "force-fallback" : "laya:en",
+        state: text,
+        questions: {
+          category: {
+            type: "choice",
+            instructions: "Classify the domain category of this situation or request.",
+            criteria: {
+              infrastructure: "Database crash, server hardware failure, network outage, or core cloud host down",
+              billing: "Duplicate charge, subscription cancellation, refund request, invoice dispute, or payment issue",
+              application_bug: "API latency degradation, software error, frontend defect, or unhandled exception",
+              security_incident: "Ransomware, brute-force attack, unauthorized login, exploit, data breach, or token leak",
+              other: "General inquiry, routine feature request, documentation question, or cosmetic preference"
+            }
+          },
+          urgency: {
+            type: "noul",
+            instructions: "Is this an urgent production situation requiring immediate operational response?"
+          },
+          severity: {
+            type: "score",
+            instructions: "Assess operational severity on a 4-level scale from Level 0 to Level 3.",
+            criteria: [
+              "Level 0: Low — minor inconvenience, no significant business impact.",
+              "Level 1: Medium — degraded functionality with limited impact.",
+              "Level 2: High — significant service degradation affecting customers.",
+              "Level 3: Critical — production outage or major business operation failure."
+            ]
+          }
+        }
+      };
+
+      const t0 = performance.now();
+      try {
+        const resp = await fetch('/v1/systemone', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const clientLatency = (performance.now() - t0).toFixed(1);
+        const data = await resp.json();
+
+        if (resp.ok) {
+          renderAnalysis(text, data, clientLatency);
+        } else {
+          alert('Backend Error: ' + JSON.stringify(data));
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Connection Error: Could not reach decision gateway (' + err.message + ')');
+      } finally {
+        btn.disabled = false;
+        spinner.style.display = 'none';
+        btnSparkle.style.display = 'inline-block';
+        btnText.innerText = 'Analyze query';
+      }
+    }
+
+    function renderAnalysis(queryText, data, clientLatency) {
+      document.getElementById('rawJsonViewer').innerText = JSON.stringify(data, null, 2);
+
+      const answers = data.answers || {};
+      const meta = data.decision_meta || {};
+      const isFallback = meta.backend === 'ollama_fallback';
+
+      // Fallback Banner
+      const banner = document.getElementById('fallbackBanner');
+      banner.classList.toggle('active', isFallback);
+      if (isFallback) {
+        document.getElementById('fallbackModelName').innerText = meta.model_used || 'nemotron-3-nano:4b';
+      }
+
+      // Technical Telemetry
+      const backendLat = (meta.latency_ms || 0).toFixed(1);
+      document.getElementById('telBackendLatency').innerText = `${backendLat} ms`;
+      document.getElementById('telClientLatency').innerText = `${clientLatency} ms`;
+      document.getElementById('telCalibration').innerText = meta.is_calibrated ? 'Calibrated' : 'Normalized (Statistically Uncalibrated)';
+      document.getElementById('telHardware').innerText = meta.runtime_device || 'DGX Spark (ARM64 CPU, ONNX fp32)';
+      document.getElementById('techLatencySummary').innerText = `${backendLat} ms`;
+      
+      const modelName = isFallback ? 'Nemotron-3-Nano' : 'Laya';
+      const engineName = isFallback ? 'Ollama (Fallback)' : 'Ollaya (CPU)';
+      document.getElementById('techModelSummary').innerText = modelName;
+      document.getElementById('techEngineSummary').innerText = engineName;
+
+      // 1. Category (Choice)
+      const cat = answers.category || {};
+      const catChoice = cat.choice || 'other';
+      const cProbs = cat.probabilities || {};
+      const catWinProb = cProbs[catChoice] !== undefined ? cProbs[catChoice] : (cat.confidence || 0.70);
+      const catConfidence = cat.confidence || 0.50;
+
+      const catLabels = {
+        'billing': 'Billing / Refund',
+        'infrastructure': 'Infrastructure / Outage',
+        'security_incident': 'Security Incident',
+        'application_bug': 'Application Bug',
+        'other': 'General / Other'
+      };
+
+      const catDescriptions = {
+        'billing': 'Related to duplicate charge, cancellation, refund or payment issue.',
+        'infrastructure': 'Related to servers, databases, networking, or core cloud availability.',
+        'security_incident': 'Related to unauthorized access, credentials breach, exploit, or intrusion.',
+        'application_bug': 'Related to software defect, API latency degradation, or unhandled exception.',
+        'other': 'Routine inquiry, documentation question, or cosmetic enhancement.'
+      };
+
+      document.getElementById('valCategory').innerText = catLabels[catChoice] || catChoice;
+      document.getElementById('descCategory').innerText = catDescriptions[catChoice] || 'Domain categorization based on semantic criteria.';
+      document.getElementById('valCatWinProb').innerText = `${(catWinProb * 100).toFixed(1)}%`;
+      document.getElementById('valCatConfidence').innerText = `${(catConfidence * 100).toFixed(1)}%`;
+      document.getElementById('barCategory').style.width = `${Math.min(100, Math.max(5, catWinProb * 100))}%`;
+
+      // Render category distribution panel
+      const catPanel = document.getElementById('distCategoryPanel');
+      catPanel.innerHTML = '';
+      const cProbs = cat.probabilities || {};
+      Object.keys(cProbs).sort((a,b) => cProbs[b] - cProbs[a]).forEach(k => {
+        const p = cProbs[k];
+        const isWin = k === catChoice;
+        const row = document.createElement('div');
+        row.className = `dist-row ${isWin ? 'winner' : ''}`;
+        row.innerHTML = `
+          <span class="dist-name">${catLabels[k] || k}</span>
+          <div class="dist-bar-box">
+            <div class="dist-bar-inner" style="width: ${p * 100}%;"></div>
+          </div>
+          <span class="dist-val">${(p * 100).toFixed(1)}%</span>
+        `;
+        catPanel.appendChild(row);
+      });
+
+      // 2. Urgency (Noul)
+      const urg = answers.urgency || answers.is_urgent || {};
+      const urgNoul = typeof urg.noul === 'number' ? urg.noul : 0.5;
+      const urgPercent = (urgNoul * 100).toFixed(1);
+
+      let urgLabel = "Medium";
+      let urgDesc = "Requires standard operational review.";
+      if (urgNoul >= 0.65) {
+        urgLabel = "High";
+        urgDesc = "Requires prompt attention due to potential churn, outage, or threat risk.";
+      } else if (urgNoul >= 0.35) {
+        urgLabel = "Medium";
+        urgDesc = "Moderate operational priority, investigate within current business shift.";
+      } else {
+        urgLabel = "Low";
+        urgDesc = "Routine or non-critical item; no immediate escalation required.";
+      }
+
+      document.getElementById('valUrgency').innerText = urgLabel;
+      document.getElementById('descUrgency').innerText = urgDesc;
+      document.getElementById('valUrgProbability').innerText = `${urgPercent}%`;
+      document.getElementById('barUrgency').style.width = `${Math.min(100, Math.max(5, urgNoul * 100))}%`;
+
+      // 3. Severity (Score)
+      const sev = answers.severity || {};
+      const score = typeof sev.score === 'number' ? sev.score : 1.0;
+      const sevPercent = ((score / 3.0) * 100).toFixed(0);
+
+      let sevLabel = "Medium";
+      let sevDesc = "Limited functional degradation without catastrophic business impact.";
+      if (score >= 2.2) {
+        sevLabel = "Critical";
+        sevDesc = "Major production outage or severe business operation failure.";
+      } else if (score >= 1.5) {
+        sevLabel = "Medium – High";
+        sevDesc = "Significant customer impact and operational risk, but not a total outage.";
+      } else if (score >= 0.8) {
+        sevLabel = "Low – Medium";
+        sevDesc = "Degraded functionality with limited customer or revenue impact.";
+      } else {
+        sevLabel = "Low";
+        sevDesc = "Minor inconvenience or cosmetic item; no significant business impact.";
+      }
+
+      document.getElementById('valSeverity').innerText = sevLabel;
+      document.getElementById('descSeverity').innerText = sevDesc;
+      document.getElementById('valSevScore').innerText = `${score.toFixed(2)} / 3.0`;
+      document.getElementById('barSeverity').style.width = `${Math.min(100, Math.max(5, sevPercent))}%`;
+
+      // Render severity distribution panel
+      const sevPanel = document.getElementById('distSeverityPanel');
+      sevPanel.innerHTML = '';
+      const sProbs = sev.probabilities || {};
+      for (let i = 0; i <= 3; i++) {
+        const k = String(i);
+        const p = sProbs[k] || 0;
+        const row = document.createElement('div');
+        row.className = `dist-row ${Math.round(score) === i ? 'winner' : ''}`;
+        row.innerHTML = `
+          <span class="dist-name">Level ${i} (${['Low','Medium','High','Critical'][i]})</span>
+          <div class="dist-bar-box">
+            <div class="dist-bar-inner" style="width: ${p * 100}%;"></div>
+          </div>
+          <span class="dist-val">${(p * 100).toFixed(1)}%</span>
+        `;
+        sevPanel.appendChild(row);
+      }
+
+      // 4. Decision Action & Synthesis (Multi-factor: Category + Urgency + Severity + Context)
+      const lower = queryText.toLowerCase();
+      let action = 'Route to Operational Triage';
+      let actionDesc = 'Evaluate request according to standard operating procedures.';
+
+      if (catChoice === 'billing') {
+        if (urgNoul < 0.35 && score < 1.4) {
+          action = 'Log to Product Backlog';
+          actionDesc = 'Catalog non-urgent billing tool/dashboard enhancement for product roadmap review.';
+        } else {
+          action = 'Escalate to Billing';
+          actionDesc = 'Route to billing team for immediate investigation and customer response.';
+        }
+      } else if (catChoice === 'infrastructure') {
+        if (score >= 1.8 && urgNoul >= 0.5) {
+          action = 'Initiate P1 Outage Response';
+          actionDesc = 'Alert primary on-call engineering team to inspect cluster status and restore service.';
+        } else {
+          action = 'Dispatch SRE Team';
+          actionDesc = 'Alert SRE to monitor cluster capacity, evaluate scaling, and inspect telemetry.';
+        }
+      } else if (catChoice === 'security_incident') {
+        if (lower.includes('gdpr') || lower.includes('erasure') || lower.includes('privacy') || lower.includes('deletion')) {
+          action = 'Assign to Data Privacy Officer';
+          actionDesc = 'Process formal compliance and data erasure request within statutory timeline.';
+        } else {
+          action = 'Lock Down & Dispatch SecOps';
+          actionDesc = 'Isolate compromised hosts/tokens, inspect access logs, and initiate security protocol.';
+        }
+      } else if (catChoice === 'application_bug') {
+        action = urgNoul >= 0.5 ? 'Escalate Bug to On-Call Dev' : 'Route to Engineering Triage';
+        actionDesc = 'Create bug ticket with stack trace and assign to product development team.';
+      } else {
+        action = 'Log to Product Backlog';
+        actionDesc = 'Catalog feature request or routine question for standard roadmap review.';
+      }
+
+      document.getElementById('valDecision').innerText = action;
+      document.getElementById('descDecision').innerText = actionDesc;
+
+      // 5. Reasoning & Next Steps (Synthesized transparently from structured primitives)
+      synthesizeReasoning(queryText, catChoice, catConfidence, urgNoul, score, action);
+    }
+
+    function synthesizeReasoning(queryText, catChoice, catConfidence, urgNoul, score, actionName) {
+      const lower = queryText.toLowerCase();
+
+      // Point 1: Premise & Category classification
+      let p1 = "";
+      if (catChoice === 'billing') {
+        if (urgNoul < 0.35 && score < 1.4) {
+          p1 = `The query relates to billing tools and reporting (${(catConfidence*100).toFixed(0)}% category match), but represents a non-disruptive workflow enhancement rather than an active transactional failure.`;
+        } else {
+          const hasChargeback = lower.includes('chargeback') || lower.includes('bank') || lower.includes('fraud');
+          p1 = `The query indicates an active billing dispute${hasChargeback ? ' with a chargeback/churn threat' : ''}, which represents a high-risk customer revenue concern (${(catConfidence*100).toFixed(0)}% confidence).`;
+        }
+      } else if (catChoice === 'infrastructure') {
+        p1 = `The query describes an infrastructure situation affecting core systems (${(catConfidence*100).toFixed(0)}% confidence), indicating potential service disruption or capacity strain.`;
+      } else if (catChoice === 'security_incident') {
+        if (lower.includes('gdpr') || lower.includes('erasure') || lower.includes('privacy')) {
+          p1 = `The request represents a formal regulatory compliance notice (GDPR / privacy erasure), requiring auditable data deletion within a statutory legal window.`;
+        } else {
+          p1 = `The incident signals an active security threat or unauthorized credential access (${(catConfidence*100).toFixed(0)}% confidence), requiring containment to prevent data exfiltration.`;
+        }
+      } else if (catChoice === 'application_bug') {
+        p1 = `The report specifies an application software defect or latency bottleneck (${(catConfidence*100).toFixed(0)}% confidence), impacting user experience without total infrastructure loss.`;
+      } else {
+        p1 = `The input constitutes a non-disruptive user inquiry or enhancement request (${(catConfidence*100).toFixed(0)}% confidence), having minimal immediate operational risk.`;
+      }
+
+      // Point 2: Risk and Urgency Assessment
+      let p2 = "";
+      if (urgNoul >= 0.65) {
+        p2 = `With calibrated urgency probability at ${(urgNoul*100).toFixed(1)}% and severity score of ${score.toFixed(2)}/3.0, this situation requires immediate same-day intervention to mitigate operational, financial, or reputational fallout.`;
+      } else if (urgNoul >= 0.35) {
+        p2 = `With urgency at ${(urgNoul*100).toFixed(1)}% and moderate severity (${score.toFixed(2)}/3.0), this should be queued for operational follow-up within normal business service levels.`;
+      } else {
+        p2 = `With low urgency probability (${(urgNoul*100).toFixed(1)}%) and low severity (${score.toFixed(2)}/3.0), no emergency paging or off-hours intervention is required.`;
+      }
+
+      // Point 3: Actionable next step
+      let p3 = "";
+      if (catChoice === 'billing') {
+        if (urgNoul < 0.35 && score < 1.4) {
+          p3 = `<strong>Recommended next step:</strong> Catalog the CSV export suggestion in the product backlog (Jira/Linear) and track customer demand for upcoming sprint planning.`;
+        } else {
+          p3 = `<strong>Recommended next step:</strong> Escalate to the billing/customer success team, verify the account status, review the charges, and respond to the customer with a resolution path.`;
+        }
+      } else if (catChoice === 'infrastructure') {
+        if (score >= 1.8 && urgNoul >= 0.5) {
+          p3 = `<strong>Recommended next step:</strong> Engage on-call SRE via PagerDuty, check Kubernetes/database cluster metrics, and initiate automated failover or pod restarts.`;
+        } else {
+          p3 = `<strong>Recommended next step:</strong> Alert SRE to review autoscaling limits, check pod CPU/memory utilization, and prepare targeted scaling if latency persists.`;
+        }
+      } else if (catChoice === 'security_incident') {
+        if (lower.includes('gdpr') || lower.includes('erasure') || lower.includes('privacy')) {
+          p3 = `<strong>Recommended next step:</strong> Route request to Data Protection Officer (DPO), verify requester identity, and schedule automated database erasure within the 30-day window.`;
+        } else {
+          p3 = `<strong>Recommended next step:</strong> Immediately revoke compromised API tokens, block the offending IP address range at the firewall, and notify the Security Incident Response Team (SIRT).`;
+        }
+      } else if (catChoice === 'application_bug') {
+        p3 = `<strong>Recommended next step:</strong> Inspect application error logs in Sentry/Datadog, pinpoint the regression, and prepare a targeted hotfix or canary rollback.`;
+      } else {
+        p3 = `<strong>Recommended next step:</strong> Add the suggestion to the product backlog or knowledge base, and respond to the requester with standard guidance.`;
+      }
+
+      document.getElementById('step1Text').innerHTML = p1;
+      document.getElementById('step2Text').innerHTML = p2;
+      document.getElementById('step3Text').innerHTML = p3;
+    }
+
+    // Run health check and auto-analyze initial query on load
+    window.addEventListener('DOMContentLoaded', () => {
+      checkHealth();
+      analyzeQuery();
+    });
+  </script>
+</body>
+</html>

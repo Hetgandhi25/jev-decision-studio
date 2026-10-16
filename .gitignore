@@ -1,0 +1,53 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Virtual environments
+venv/
+env/
+.venv/
+ENV/
+
+# Environment variables, credentials, and private keys
+.env
+.env.*
+*.pem
+*.key
+id_*
+*.pub
+
+# Logs and runtime databases
+*.log
+gateway.log
+
+# Scratch runner, internal audit scripts, and private evaluation data
+dgx_runner.py
+deploy_*.py
+audit_*.py
+test_*.py
+check_*.py
+inspect_*.py
+install_*.py
+update_*.py
+setup_*.py
+switch_*.py
+ensure_*.py
+create_*.py
+bind_lan.py
+pull_model.py
+start_ollaya_service.py
+fix_gateway_service.py
+validate_decision_studio.py
+benchmark_laya.py
+reconcile_evaluation_metrics.py
+run_adversarial_tests.py
+DEMO_GUIDE.md
+evaluation_records.json
+
+# Operating System & IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
