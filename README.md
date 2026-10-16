@@ -229,11 +229,13 @@ Decision Studio explicitly displays both: `Winning Prob: 89.8%` and `(Conf: 87.2
 The binary decision head projects context embeddings into a sigmoid activation:
 $$P(\text{YES} \mid \text{state}) = \sigma(z_{\text{urgency}}) = \frac{1}{1 + e^{-z_{\text{urgency}}}} \in [0.0, 1.0]$$
 To translate continuous probability into operational workflows, Decision Studio applies the following policy thresholds:
-$$\text{Urgency Label} = \begin{cases} 
-\mathbf{High} & \text{if } P(\text{YES}) \ge 0.65 \\
-\mathbf{Medium} & \text{if } 0.35 \le P(\text{YES}) < 0.65 \\
-\mathbf{Low} & \text{if } P(\text{YES}) < 0.35 
-\end{cases}$$
+
+| Urgency Label | Probability Threshold | Operational SLA & Routing Action |
+| :--- | :---: | :--- |
+| **High** | $P(\text{YES}) \ge 0.65$ | Immediate escalation; triggers page to on-call engineer |
+| **Medium** | $0.35 \le P(\text{YES}) < 0.65$ | Standard priority; queued for active triage team |
+| **Low** | $P(\text{YES}) < 0.35$ | Routine queue; reviewed during normal business hours |
+
 *(Note: These thresholds are operational triage policies, not universal mathematical truths).*
 
 ### 4. Severity Rubric Expected Value
