@@ -218,7 +218,7 @@ Every percentage, score, and label rendered in Decision Studio originates from s
 For a candidate set of categories $C = \{c_1, c_2, \dots, c_K\}$, the model produces unnormalized logits $z_k$. The probability vector is computed via softmax:
 $$p_k = \frac{e^{z_k}}{\sum_{j=1}^K e^{z_j}} \quad \text{such that} \quad \sum_{k=1}^K p_k = 1.000000 \pm 10^{-4}$$
 The winning selection strictly satisfies the argmax contract:
-$$\text{choice} = \operatorname{argmax}_{k} (p_k)$$
+$$\text{choice} = \arg\max_{k} (p_k)$$
 
 ### 2. Category Confidence Margin
 Ollaya returns a distinct `confidence` metric alongside `probabilities`. This is **not** the winning probability; it represents the normalized separation margin between the top-1 candidate and top-2 candidate:
@@ -514,7 +514,7 @@ python run_regression_suite.py
 1. **Health Verification:** Gateway connectivity and upstream runtime statuses.
 2. **Probability & Mathematical Contract:**
    - $\sum p_i = 1.000000 \pm 10^{-4}$ (Category Softmax).
-   - $\text{choice} = \operatorname{argmax}_k(p_k)$ (Argmax selection).
+   - $\text{choice} = \arg\max_k(p_k)$ (Argmax selection).
    - $0.0 \le \text{noul} \le 1.0$ (Bounded sigmoid).
    - $E[S] = \sum i \cdot p_i \pm 0.0002$ (Severity Expected Value).
 3. **Metadata & Calibration Integrity:** Verifies `is_calibrated: false` and CPU execution provider tags.
